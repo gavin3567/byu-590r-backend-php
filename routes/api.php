@@ -1,0 +1,16 @@
+<?php
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\API\RegisterController;
+use App\Http\Controllers\SneakersController;
+
+Route::controller(RegisterController::class)->group(function(): void{
+    Route::post('register', 'register');
+    Route::post('login', 'login');
+    Route::post('logout', 'logout');
+});
+
+
+
+Route::resource('sneakers', SneakersController::class);
