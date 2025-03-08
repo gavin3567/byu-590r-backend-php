@@ -4,7 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\RegisterController;
 use App\Http\Controllers\API\ForgotPasswordController;
-use App\Http\Controllers\SneakersController;
+use App\Http\Controllers\PokemonController;
 
 Route::controller(RegisterController::class)->group(function(): void{
     Route::post('register', 'register');
@@ -16,4 +16,4 @@ Route::controller(RegisterController::class)->group(function(): void{
 Route::post('forgot_password', [ForgotPasswordController::class, 'forgotPassword']);
 Route::post('reset_password', [ForgotPasswordController::class, 'resetPassword']);
 
-Route::resource('sneakers', SneakersController::class);
+Route::resource('pokemon', PokemonController::class);
