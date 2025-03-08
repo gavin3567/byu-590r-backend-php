@@ -5,8 +5,11 @@ namespace App\Http\Controllers\API;
 use Illuminate\Http\Request;
 use App\Http\Controllers\API\BaseController as BaseController;
 use App\Models\User;
-use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class ForgotPasswordController extends BaseController
 {
@@ -32,15 +35,22 @@ class ForgotPasswordController extends BaseController
             return $this->sendError('User not found', ['error' => 'No user found with this email address']);
         }
 
-        // Send password reset email
-        $status = Password::sendResetLink(
-            $request->only('email')
-        );
+        // Create a new reset token
+        $token = Str::random(60);
 
-        if ($status === Password::RESET_LINK_SENT) {
-            return $this->sendResponse(['email' => $request->email], 'Password reset link sent to your email');
-        }
+        // Store the token in password_resets table
+        DB::table('password_resets')->insert([
+            'email' => $request->email,
+            'token' => $token,
+            'created_at' => Carbon::now()
+        ]);
 
-        return $this->sendError('Error sending reset link', ['error' => $status]);
+        // Send a simple email notification
+        Mail::send('emails.reset_password', ['token' => $token, 'user' => $user], function($message) use ($request) {
+            $message->to($request->email);
+            $message->subject('Password Reset Notification');
+        });
+
+        return $this->sendResponse(['email' => $request->email], 'Password reset link sent to your email');
     }
 }
