@@ -53,4 +53,50 @@ class ForgotPasswordController extends BaseController
 
         return $this->sendResponse(['email' => $request->email], 'Password reset link sent to your email');
     }
+
+    /**
+     * Reset user password with token.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function resetPassword(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'token' => 'required',
+            'password' => 'required|min:8',
+            'c_password' => 'required|same:password',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->sendError('Validation Error.', $validator->errors());
+        }
+
+        // Verify token
+        $tokenData = DB::table('password_resets')
+            ->where('email', $request->email)
+            ->where('token', $request->token)
+            ->first();
+
+        if (!$tokenData) {
+            return $this->sendError('Invalid Token', ['error' => 'Invalid or expired token']);
+        }
+
+        // Check if token is expired (60 minutes)
+        if (Carbon::parse($tokenData->created_at)->addMinutes(60)->isPast()) {
+            DB::table('password_resets')->where('email', $request->email)->delete();
+            return $this->sendError('Expired Token', ['error' => 'Token has expired']);
+        }
+
+        // Update user password
+        $user = User::where('email', $request->email)->first();
+        $user->password = bcrypt($request->password);
+        $user->save();
+
+        // Delete the token
+        DB::table('password_resets')->where('email', $request->email)->delete();
+
+        return $this->sendResponse([], 'Password has been reset successfully');
+    }
 }

@@ -12,7 +12,8 @@ Route::controller(RegisterController::class)->group(function(): void{
     Route::post('logout', 'logout');
 });
 
-// Add forgot password endpoint
+// Password reset endpoints
 Route::post('forgot_password', [ForgotPasswordController::class, 'forgotPassword']);
+Route::post('reset_password', [ForgotPasswordController::class, 'resetPassword']);
 
 Route::resource('sneakers', SneakersController::class);
