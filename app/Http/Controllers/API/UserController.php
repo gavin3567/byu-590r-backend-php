@@ -9,7 +9,13 @@ use Illuminate\Support\Facades\Storage;
 
 class UserController extends BaseController
 {
-    public function getUser() {
+    /**
+     * Get authenticated user details
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function getUser()
+    {
         $authUser = Auth::user();
         $user = User::findOrFail($authUser->id);
         $user->avatar = $this->getS3Url($user->avatar);
@@ -84,5 +90,50 @@ class UserController extends BaseController
 
         $success['avatar'] = null;
         return $this->sendResponse($success, 'User profile avatar removed successfully!');
+    }
+
+    /**
+     * Send verification email to user
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function sendVerificationEmail()
+    {
+        $authUser = Auth::user();
+        $user = User::findOrFail($authUser->id);
+
+        // Create verification URL or token logic here
+        // This is a placeholder - you'll need to implement your verification logic
+        $verificationUrl = url('/verify-email/' . encrypt($user->id));
+
+        // Send verification email
+        Mail::to($user->email)->send(new VerifyEmail($user, $verificationUrl));
+
+        return $this->sendResponse(null, 'Verification email sent successfully!');
+    }
+
+    /**
+     * Change user email
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\Response
+     */
+    public function changeEmail(Request $request)
+    {
+        // Validate the request
+        $request->validate([
+            'email' => 'required|email|unique:users,email,' . Auth::id(),
+        ]);
+
+        $authUser = Auth::user();
+        $user = User::findOrFail($authUser->id);
+
+        // Update email
+        $user->email = $request->email;
+        $user->email_verified_at = null; // Reset verification status
+        $user->save();
+
+        // Return success
+        return $this->sendResponse(['email' => $user->email], 'Email changed successfully!');
     }
 }
