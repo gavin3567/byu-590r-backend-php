@@ -3,7 +3,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\RegisterController;
 use App\Http\Controllers\API\ForgotPasswordController;
-use App\Http\Controllers\PokemonController;
+use App\Http\Controllers\PokemonCardController;
 use App\Http\Controllers\API\UserController;
 
 Route::controller(RegisterController::class)->group(function(): void{
@@ -27,4 +27,4 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 });
 
-Route::resource('pokemon', PokemonController::class);
+Route::resource('pokemon-cards', PokemonCardController::class);
