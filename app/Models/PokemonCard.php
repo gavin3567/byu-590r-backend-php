@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -19,6 +18,8 @@ class PokemonCard extends Model
         'card_number',
         'card_rarity',
         'description',
-        'card_image'
+        'card_image',
+        'inventory_total_qty',
+        'checked_qty'
     ];
 }

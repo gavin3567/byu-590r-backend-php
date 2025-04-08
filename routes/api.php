@@ -25,6 +25,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('user/send_verification_email','sendVerificationEmail');
         Route::post('user/change_email', 'changeEmail');
     });
-});
 
-Route::resource('pokemon-cards', PokemonCardController::class);
+    // Pokemon Card routes
+    Route::resource('pokemon-cards', PokemonCardController::class);
+
+    // Add custom routes for checkout/return functionality
+    Route::patch('pokemon-cards/{id}/checkout', [PokemonCardController::class, 'checkoutCard']);
+    Route::patch('pokemon-cards/{id}/return', [PokemonCardController::class, 'returnCard']);
+});
